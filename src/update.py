@@ -9,11 +9,24 @@ from utils_sag import *
 import options
 from options import args_parser
 from PIL import Image
+import os
 
 import time
 import numpy as np
 from torchvision import transforms
 
+def npsave(DataSpec, data,path_project = os.path.abspath('..')):
+    args=args_parser()
+    directory=path_project+'/save/T[{}]iid[{}_GR[{}]]/'.format(args.targets, args.iid, args.epochs)
+    try:
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+    except OSError:
+        print('Error: Creating directory. ' + directory)
+
+    file_name = directory+'/{}_C[{}]_E[{}]_B[{}]'.\
+        format(DataSpec, args.frac,args.local_ep, args.local_bs)
+    np.save(file_name,data)
 
 
 class DatasetSplit(Dataset):
@@ -167,7 +180,7 @@ class LocalUpdate(object): #idxs=user_groups[idx]=clinet #clinet model training
         model.train()
 
         epoch_loss,epoch_loss_style,epoch_loss_adv = [],[],[]
-        #acc_total = []
+        local_acc = []
 
         optimizer = torch.optim.SGD(model.parameters(), lr=self.args.lr,momentum=0.5)
 
@@ -212,9 +225,13 @@ class LocalUpdate(object): #idxs=user_groups[idx]=clinet #clinet model training
             epoch_loss_adv.append(sum(batch_loss_adv) / len(batch_loss_adv))
             acc_total.append(sum(acc_list)/len(acc_list))
 
+            local_acc.append(sum(acc_list)/len(acc_list))
+
             print('\tloss: {:.6f}\tloss_style: {:.6f}\tloss_adv: {:.6f}\t'.format(sum(epoch_loss) / len(epoch_loss),sum(epoch_loss_style) / len(epoch_loss_style),sum(epoch_loss_adv) / len(epoch_loss_adv)))
             print('\tacc: {:.6f}'.format(acc_total[0]))   #sum(acc_list)/len(acc_list)
 
+        if global_round == 0:
+            npsave('local_acc',local_acc)
 
         return model.state_dict(), model.style_net.state_dict(),model.adv_params(),model.style_params() ,sum(epoch_loss) / len(epoch_loss),sum(epoch_loss_style) / len(epoch_loss_style),sum(epoch_loss_adv) / len(epoch_loss_adv),acc_total[0]
 

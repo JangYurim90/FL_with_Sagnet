@@ -12,7 +12,7 @@ import torch
 from tensorboardX import SummaryWriter
 from torchvision import transforms
 from options import args_parser #parameters import
-from update import LocalUpdate, test_inference
+from update import LocalUpdate, test_inference, npsave
 from utils import pacs_noniid, pacs_iid
 
 #from models import MLP, ResNet
@@ -21,6 +21,8 @@ from sag_resnet import sag_resnet
 from utils import get_dataset, average_weights, exp_details
 from loss_sag import *
 from utils_sag import *
+
+
 
 def init_loader(): #train_dataset, val_dataset,test_dataset):
     global loader_srcs, loader_vals, loader_tgts
@@ -348,16 +350,16 @@ if __name__ == '__main__':
     ##################################################### 0608
 
     # val_acc save
-    file_name = '../save/val_acc/{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}].npy'. \
-        format(args.dataset, args.model, args.epochs, args.frac, args.iid,
-               args.local_ep, args.local_bs)
-    np.save(file_name,val_acc_list)
+    npsave('val_acc',val_acc_list)
 
     # train_loss
-    file_name = '../save/loss/{}_{}_{}_C[{}]_iid[{}]_E[{}]_B[{}].npy'. \
-        format(args.dataset, args.model, args.epochs, args.frac, args.iid,
-               args.local_ep, args.local_bs)
-    np.save(file_name, train_loss)
+    np.save('train_loss', train_loss)
+
+    # train_loss_style
+    np.save('train_loss_style', train_loss_style)
+
+    # train_loss
+    np.save('train_loss_adv', train_loss_adv)
 
 
     ##############################Test#########################################################33
