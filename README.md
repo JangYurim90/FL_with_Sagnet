@@ -5,7 +5,8 @@ With the increasing use of edge devices, research on data security and efficient
 
 
 ## Information
-- Federated Learning with Sagnet
+* Federated Learning with Sagnet
+
 By combining the Sagnet model with the best Domain Generalization performance through dataset Pacs with FedAvg, a federated learning learning algorithm that performs global updates by performing local updates several times, SagFL is implemented.
 
 
